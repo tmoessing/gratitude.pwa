@@ -3,12 +3,12 @@
  */
 
 import { addEntry, updateEntry } from '../data/storage.js';
-import { formatDate, getTodayDateString, getPreviousDay, getNextDay, getPreviousMonth, getNextMonth } from '../utils/dateUtils.js';
+import { formatDate, getTodayDateString, getPreviousDay, getNextDay, getPreviousMonth, getNextMonth, getPreviousYear, getNextYear } from '../utils/dateUtils.js';
 import { showNotification } from '../services/notificationService.js';
 import { exportToCSV } from '../services/csvService.js';
 import { importFromCSV } from '../services/csvService.js';
 import { getAllEntries, getTotalEntryCount, getEntriesByDate } from '../data/storage.js';
-import { renderAll, renderCalendarEntries, updateCalendarDateTitle, renderAllEntries, renderTodayEntries, renderPastEntries, renderHistoricalHighlights, renderInsights, renderCalendarGrid } from './views.js';
+import { renderAll, renderCalendarEntries, renderAllEntries, renderTodayEntries, renderPastEntries, renderHistoricalHighlights, renderInsights, renderCalendarGrid, renderMonthYearPicker } from './views.js';
 import { escapeHtml } from '../utils/htmlUtils.js';
 
 /**
@@ -347,7 +347,6 @@ export function updateCalendarView(dateString) {
     const selectedDate = new Date(dateString + 'T00:00:00');
     currentCalendarMonth = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
     
-    updateCalendarDateTitle(dateString);
     renderCalendarEntries(dateString);
     renderCalendarGrid(currentCalendarMonth, dateString);
 }
@@ -512,6 +511,61 @@ export function openInsightsView() {
  */
 export function closeInsightsView() {
     switchView('highlights');
+}
+
+/**
+ * Opens the month/year picker modal
+ */
+export function openMonthYearPicker() {
+    const modal = document.getElementById('monthYearPickerModal');
+    if (!modal) return;
+    
+    renderMonthYearPicker(currentCalendarMonth);
+    modal.style.display = 'flex';
+}
+
+/**
+ * Closes the month/year picker modal
+ */
+export function closeMonthYearPicker() {
+    const modal = document.getElementById('monthYearPickerModal');
+    if (!modal) return;
+    
+    modal.style.display = 'none';
+}
+
+/**
+ * Selects a year in the picker
+ * @param {number} year - Year to select
+ */
+function selectYear(year) {
+    const newDate = new Date(currentCalendarMonth);
+    newDate.setFullYear(year);
+    currentCalendarMonth = new Date(newDate.getFullYear(), newDate.getMonth(), 1);
+    renderMonthYearPicker(currentCalendarMonth);
+    renderCalendarGrid(currentCalendarMonth, currentCalendarDate);
+}
+
+/**
+ * Selects a month in the picker and closes the modal
+ * @param {number} month - Month index (0-11)
+ */
+function selectMonth(month) {
+    const newDate = new Date(currentCalendarMonth);
+    newDate.setMonth(month);
+    currentCalendarMonth = new Date(newDate.getFullYear(), newDate.getMonth(), 1);
+    
+    // Update calendar view to show the selected month
+    // Use the first day of the month as the selected date, but don't select future dates
+    const firstDayOfMonth = new Date(newDate.getFullYear(), newDate.getMonth(), 1);
+    const firstDayString = formatDate(firstDayOfMonth);
+    const today = getTodayDateString();
+    
+    // If the first day of the month is in the future, select today instead
+    const dateToSelect = firstDayString > today ? today : firstDayString;
+    updateCalendarView(dateToSelect);
+    
+    closeMonthYearPicker();
 }
 
 /**
@@ -823,6 +877,74 @@ export function setupEventListeners() {
         });
     }
     
+    // Calendar grid date click handler (event delegation)
+    document.addEventListener('click', (e) => {
+        const calendarDay = e.target.closest('.calendar-day');
+        if (calendarDay) {
+            e.preventDefault();
+            e.stopPropagation();
+            // Don't allow clicking on future dates
+            const isFuture = calendarDay.getAttribute('data-future') === 'true';
+            if (isFuture) {
+                return;
+            }
+            const dateString = calendarDay.getAttribute('data-date');
+            if (dateString) {
+                updateCalendarView(dateString);
+            }
+            return;
+        }
+        
+        // Month navigation
+        if (e.target.closest('#calendarPrevMonthBtn')) {
+            e.preventDefault();
+            e.stopPropagation();
+            currentCalendarMonth = getPreviousMonth(currentCalendarMonth);
+            renderCalendarGrid(currentCalendarMonth, currentCalendarDate);
+        } else if (e.target.closest('#calendarNextMonthBtn')) {
+            e.preventDefault();
+            e.stopPropagation();
+            currentCalendarMonth = getNextMonth(currentCalendarMonth);
+            renderCalendarGrid(currentCalendarMonth, currentCalendarDate);
+        } else if (e.target.closest('#calendarPrevYearBtn')) {
+            e.preventDefault();
+            e.stopPropagation();
+            currentCalendarMonth = getPreviousYear(currentCalendarMonth);
+            renderCalendarGrid(currentCalendarMonth, currentCalendarDate);
+        } else if (e.target.closest('#calendarNextYearBtn')) {
+            e.preventDefault();
+            e.stopPropagation();
+            currentCalendarMonth = getNextYear(currentCalendarMonth);
+            renderCalendarGrid(currentCalendarMonth, currentCalendarDate);
+        } else if (e.target.closest('#calendarTodayBtn')) {
+            e.preventDefault();
+            e.stopPropagation();
+            const today = getTodayDateString();
+            updateCalendarView(today);
+        } else if (e.target.closest('#calendarMonthYearBtn')) {
+            e.preventDefault();
+            e.stopPropagation();
+            openMonthYearPicker();
+        } else if (e.target.closest('#monthYearPickerCloseBtn') || e.target.closest('.month-year-picker-overlay')) {
+            e.preventDefault();
+            e.stopPropagation();
+            closeMonthYearPicker();
+        } else if (e.target.closest('.year-picker-item')) {
+            e.preventDefault();
+            e.stopPropagation();
+            const yearBtn = e.target.closest('.year-picker-item');
+            const year = parseInt(yearBtn.getAttribute('data-year'));
+            selectYear(year);
+        } else if (e.target.closest('.month-picker-item')) {
+            e.preventDefault();
+            e.stopPropagation();
+            const monthBtn = e.target.closest('.month-picker-item');
+            const month = parseInt(monthBtn.getAttribute('data-month'));
+            selectMonth(month);
+        }
+    });
+    
+    // Keep old handlers for backward compatibility if they exist
     if (calendarDatePicker) {
         calendarDatePicker.addEventListener('change', (e) => {
             updateCalendarView(e.target.value);

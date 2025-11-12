@@ -286,3 +286,25 @@ export function getMonthName(date) {
     return months[date.getMonth()];
 }
 
+/**
+ * Gets the previous year from a date
+ * @param {Date} date - Date object
+ * @returns {Date} Previous year
+ */
+export function getPreviousYear(date) {
+    const newDate = new Date(date);
+    newDate.setFullYear(date.getFullYear() - 1);
+    return newDate;
+}
+
+/**
+ * Gets the next year from a date
+ * @param {Date} date - Date object
+ * @returns {Date} Next year
+ */
+export function getNextYear(date) {
+    const newDate = new Date(date);
+    newDate.setFullYear(date.getFullYear() + 1);
+    return newDate;
+}
+

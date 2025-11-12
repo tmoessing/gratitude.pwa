@@ -3,7 +3,7 @@
  */
 
 import { getEntriesByDate, getAllEntries, calculateStreak, getTotalEntryCount, getDaysWithEntriesCount, calculateLongestStreak, getMostFrequentEntries, getMostFrequentWords } from '../data/storage.js';
-import { formatDate, formatDateDisplay, getTodayDateString, formatDateHeader, getLastWeekDate, getLastMonthDate, getThreeMonthsAgoDate, getSixMonthsAgoDate, getOneYearAgoDate, getRandomDateFromEntries, findNearestDateWithEntries, getCalendarGridDates, getPreviousMonth, getNextMonth, getMonthName } from '../utils/dateUtils.js';
+import { formatDate, formatDateDisplay, getTodayDateString, formatDateHeader, getLastWeekDate, getLastMonthDate, getThreeMonthsAgoDate, getSixMonthsAgoDate, getOneYearAgoDate, getRandomDateFromEntries, findNearestDateWithEntries, getCalendarGridDates, getPreviousMonth, getNextMonth, getMonthName, getPreviousYear, getNextYear } from '../utils/dateUtils.js';
 import { escapeHtml } from '../utils/htmlUtils.js';
 
 /**
@@ -145,15 +145,30 @@ export function renderCalendarGrid(monthDate, selectedDate) {
     
     let html = `
         <div class="calendar-month-header">
+            <button id="calendarPrevYearBtn" class="calendar-year-nav-btn" aria-label="Previous year">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="11 18 5 12 11 6"></polyline>
+                    <polyline points="18 18 12 12 18 6"></polyline>
+                </svg>
+            </button>
             <button id="calendarPrevMonthBtn" class="calendar-month-nav-btn" aria-label="Previous month">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="15 18 9 12 15 6"></polyline>
                 </svg>
             </button>
-            <h3 class="calendar-month-title">${monthName} ${currentYear}</h3>
+            <button id="calendarMonthYearBtn" class="calendar-month-title-btn" aria-label="Select month and year">
+                <h3 class="calendar-month-title">${monthName} ${currentYear}</h3>
+            </button>
+            <button id="calendarTodayBtn" class="calendar-today-nav-btn" aria-label="Go to today">Today</button>
             <button id="calendarNextMonthBtn" class="calendar-month-nav-btn" aria-label="Next month">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+            </button>
+            <button id="calendarNextYearBtn" class="calendar-year-nav-btn" aria-label="Next year">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="13 18 19 12 13 6"></polyline>
+                    <polyline points="6 18 12 12 6 6"></polyline>
                 </svg>
             </button>
         </div>
@@ -176,6 +191,7 @@ export function renderCalendarGrid(monthDate, selectedDate) {
         const isToday = dateString === today;
         const isSelected = dateString === selectedDate;
         const hasEntries = datesWithEntries.has(dateString);
+        const isFuture = dateString > today;
         
         let classes = 'calendar-day';
         if (!isCurrentMonth) {
@@ -190,13 +206,18 @@ export function renderCalendarGrid(monthDate, selectedDate) {
         if (hasEntries) {
             classes += ' calendar-day-has-entries';
         }
+        if (isFuture) {
+            classes += ' calendar-day-future';
+        }
         
         html += `
             <button 
                 type="button" 
                 class="${classes}" 
                 data-date="${dateString}"
+                data-future="${isFuture}"
                 aria-label="${formatDateDisplay(dateString)}"
+                ${isFuture ? 'disabled' : ''}
             >
                 <span class="calendar-day-number">${day}</span>
                 ${hasEntries ? '<span class="calendar-day-indicator"></span>' : ''}
@@ -209,6 +230,60 @@ export function renderCalendarGrid(monthDate, selectedDate) {
     `;
     
     gridContainer.innerHTML = html;
+}
+
+/**
+ * Renders the month/year picker modal
+ * @param {Date} currentDate - Current date to highlight selected month/year
+ */
+export function renderMonthYearPicker(currentDate) {
+    const yearPicker = document.getElementById('yearPicker');
+    const monthPicker = document.getElementById('monthPicker');
+    
+    if (!yearPicker || !monthPicker) return;
+    
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth();
+    
+    // Generate years (current year ± 10 years)
+    const startYear = currentYear - 10;
+    const endYear = currentYear + 10;
+    let yearHtml = '';
+    
+    for (let year = startYear; year <= endYear; year++) {
+        const isSelected = year === currentYear;
+        yearHtml += `
+            <button 
+                type="button" 
+                class="year-picker-item ${isSelected ? 'selected' : ''}" 
+                data-year="${year}"
+            >
+                ${year}
+            </button>
+        `;
+    }
+    
+    yearPicker.innerHTML = yearHtml;
+    
+    // Generate months
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    let monthHtml = '';
+    
+    months.forEach((month, index) => {
+        const isSelected = index === currentMonth;
+        monthHtml += `
+            <button 
+                type="button" 
+                class="month-picker-item ${isSelected ? 'selected' : ''}" 
+                data-month="${index}"
+            >
+                ${month}
+            </button>
+        `;
+    });
+    
+    monthPicker.innerHTML = monthHtml;
 }
 
 /**

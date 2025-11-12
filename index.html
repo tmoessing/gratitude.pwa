@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="description" content="Daily gratitude journal - track what you're grateful for each day">
     <meta name="theme-color" content="#7FB3D3">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Gratitude">
@@ -136,10 +137,8 @@
                     <div class="highlights-page-header">
                         <div class="view-tabs">
                             <button type="button" id="highlightsTabBtn" class="view-tab active" data-view="highlights">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
-                                    <path d="M2 17l10 5 10-5"></path>
-                                    <path d="M2 12l10 5 10-5"></path>
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
                                 </svg>
                                 <span>Highlights</span>
                             </button>
@@ -233,10 +232,8 @@
                     <div class="calendar-page-header">
                         <div class="view-tabs">
                             <button type="button" id="highlightsTabBtnCalendar" class="view-tab" data-view="highlights">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
-                                    <path d="M2 17l10 5 10-5"></path>
-                                    <path d="M2 12l10 5 10-5"></path>
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
                                 </svg>
                                 <span>Highlights</span>
                             </button>
@@ -261,7 +258,6 @@
                                 <span>All</span>
                             </button>
                         </div>
-                        <h2 id="calendarDateTitle" class="calendar-date-title">Select Date</h2>
                     </div>
                     <button id="calendarAddBtn" class="view-add-btn" aria-label="Add Gratitude">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -376,10 +372,8 @@
                     <div class="all-entries-page-header">
                         <div class="view-tabs">
                             <button type="button" id="highlightsTabBtnAll" class="view-tab" data-view="highlights">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
-                                    <path d="M2 17l10 5 10-5"></path>
-                                    <path d="M2 12l10 5 10-5"></path>
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
                                 </svg>
                                 <span>Highlights</span>
                             </button>
@@ -437,6 +431,36 @@
                 </div>
             </section>
         </main>
+
+        <!-- Month/Year Picker Modal -->
+        <div id="monthYearPickerModal" class="month-year-picker-modal" style="display: none;">
+            <div class="month-year-picker-overlay"></div>
+            <div class="month-year-picker-content">
+                <div class="month-year-picker-header">
+                    <h3>Select Month & Year</h3>
+                    <button id="monthYearPickerCloseBtn" class="month-year-picker-close-btn" aria-label="Close">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="month-year-picker-body">
+                    <div class="month-year-picker-section">
+                        <h4>Year</h4>
+                        <div id="yearPicker" class="year-picker-grid">
+                            <!-- Years will be generated here -->
+                        </div>
+                    </div>
+                    <div class="month-year-picker-section">
+                        <h4>Month</h4>
+                        <div id="monthPicker" class="month-picker-grid">
+                            <!-- Months will be generated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div id="notification" class="notification"></div>
         
