@@ -23,24 +23,14 @@ export function registerServiceWorker() {
 
 /**
  * Handles PWA install prompt
- * Stores the deferred prompt for potential custom install button
+ * Allows the browser's native install banner to appear
  */
-let deferredPrompt = null;
-
 export function setupInstallPrompt() {
+    // Let the browser handle the install prompt natively
+    // No need to prevent default or store the prompt
     window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-        // You could show a custom install button here if desired
         console.log('PWA install prompt available');
     });
 }
 
-/**
- * Gets the deferred install prompt
- * @returns {Event|null} The deferred prompt event or null
- */
-export function getDeferredPrompt() {
-    return deferredPrompt;
-}
 
