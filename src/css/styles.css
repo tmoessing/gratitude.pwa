@@ -2076,6 +2076,17 @@ button {
     text-align: center;
 }
 
+/* Banner image */
+#bannerimage {
+    width: 100%;
+    background-image: url('/images/banner.svg');
+    height: 405px;
+    background-color: purple;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
 /* Safe area for notched devices */
 @supports (padding: max(0px)) {
     body {

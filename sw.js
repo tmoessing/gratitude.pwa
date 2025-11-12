@@ -1,10 +1,11 @@
-const CACHE_NAME = 'gratitude-pwa-v2';
+const CACHE_NAME = 'gratitude-pwa-v3';
 const urlsToCache = [
   '/',
   '/index.html',
   '/src/css/styles.css',
   '/src/js/app.js',
-  '/manifest.json'
+  '/manifest.json',
+  '/images/banner.svg'
 ];
 
 // Install event - cache resources
