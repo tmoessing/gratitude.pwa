@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gratitude-pwa-v1';
+const CACHE_NAME = 'gratitude-pwa-v2';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -22,8 +22,33 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
-        // Return cached version or fetch from network
-        return response || fetch(event.request);
+        if (response) {
+          // Ensure CSS files have the correct Content-Type header
+          if (event.request.url.endsWith('.css')) {
+            return response.text().then((body) => {
+              return new Response(body, {
+                status: response.status,
+                statusText: response.statusText,
+                headers: {
+                  'Content-Type': 'text/css',
+                  'Cache-Control': 'no-cache'
+                }
+              });
+            });
+          }
+          return response;
+        }
+        // Fetch from network if not in cache
+        return fetch(event.request).then((networkResponse) => {
+          // Cache the response for future use
+          if (networkResponse.ok) {
+            const responseClone = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, responseClone);
+            });
+          }
+          return networkResponse;
+        });
       })
   );
 });
