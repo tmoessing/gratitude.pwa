@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gratitude-pwa-v3';
+const CACHE_NAME = 'gratitude-pwa-v4';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -37,6 +37,19 @@ self.addEventListener('fetch', (event) => {
               });
             });
           }
+          // Ensure SVG files have the correct Content-Type header
+          if (event.request.url.endsWith('.svg')) {
+            return response.text().then((body) => {
+              return new Response(body, {
+                status: response.status,
+                statusText: response.statusText,
+                headers: {
+                  'Content-Type': 'image/svg+xml',
+                  'Cache-Control': 'public, max-age=31536000'
+                }
+              });
+            });
+          }
           return response;
         }
         // Fetch from network if not in cache
@@ -49,6 +62,11 @@ self.addEventListener('fetch', (event) => {
             });
           }
           return networkResponse;
+        }).catch(() => {
+          // If fetch fails and it's a navigation request, return the cached index.html
+          if (event.request.mode === 'navigate') {
+            return caches.match('/index.html');
+          }
         });
       })
   );
